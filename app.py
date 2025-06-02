@@ -15,14 +15,14 @@ DATASETS = {
     "liver":    ["Indian Liver Patient Dataset (ILPD).csv", "liver.csv"]
 }
 
-# Manually defined normal ranges
+# Actual normal ranges based on medical guidelines
 NORMAL_RANGES = {
     "diabetes": {
         "Pregnancies": "0–6",
-        "Glucose": "70–140 mg/dL",
+        "Glucose": "70–99 mg/dL (fasting)",
         "BloodPressure": "60–90 mmHg",
         "SkinThickness": "10–50 mm",
-        "Insulin": "15–276 mu U/ml",
+        "Insulin": "16-166 µU/mL",
         "BMI": "18.5–24.9",
         "DiabetesPedigreeFunction": "0.1–1.0",
         "Age": "20–60"
@@ -31,43 +31,43 @@ NORMAL_RANGES = {
         "age": "29–77 years",
         "sex": "0 = Female, 1 = Male",
         "cp": "0–3 (Chest Pain Type)",
-        "trestbps": "90–140 mmHg",
-        "chol": "125–250 mg/dL",
-        "fbs": "0 = False, 1 = True (Fasting Blood Sugar > 120 mg/dL)",
+        "trestbps": "90–120 mmHg",
+        "chol": "125–200 mg/dL",
+        "fbs": "0 = False, 1 = True (FBS > 126 mg/dL)",
         "restecg": "0–2 (ECG Results)",
         "thalach": "100–200 bpm",
         "exang": "0 = No, 1 = Yes",
-        "oldpeak": "0–4",
+        "oldpeak": "0–2 mm",
         "slope": "0–2",
-        "ca": "0–4 (number of major vessels)",
-        "thal": "1–3"
+        "ca": "0–4 (vessels colored)",
+        "thal": "1 = Normal, 2 = Fixed Defect, 3 = Reversible Defect"
     },
     "kidney": {
         "age": "20–80 years",
-        "bp": "60–120 mmHg",
-        "sg": "1.005–1.025",
-        "al": "0–4",
-        "su": "0–5",
-        "bgr": "70–200 mg/dL",
-        "bu": "10–50 mg/dL",
-        "sc": "0.4–1.5 mg/dL",
+        "bp": "80–120 mmHg",
+        "sg": "1.010–1.025",
+        "al": "0 -1(normal)",
+        "su": "0–1 (normal)",
+        "bgr": "70–140 mg/dL",
+        "bu": "7–20 mg/dL",
+        "sc": "0.6–1.3 mg/dL",
         "sod": "135–145 mEq/L",
-        "pot": "3.5–5.5 mEq/L",
-        "hemo": "12–16 g/dL",
-        "pcv": "35–50%",
-        "wc": "4000–11000 cells/cmm",
-        "rc": "4.5–5.5 million/cmm"
+        "pot": "3.5–5.1 mEq/L",
+        "hemo": "12–16 g/dL (male), 12.0–15.5 g/dL (female)",
+        "pcv": "36–46% (male), 34.9–44.5% (female)",
+        "wc": "4000–11000 cells/cumm",
+        "rc": "4.5–5.5 million/cumm (male), 4.2–5.4 (female)"
     },
     "liver": {
         "Age": "20–80 years",
         "Gender": "0 = Female, 1 = Male",
         "Total_Bilirubin": "0.1–1.2 mg/dL",
         "Direct_Bilirubin": "0–0.3 mg/dL",
-        "Alkaline_Phosphotase": "30–120 IU/L",
+        "Alkaline_Phosphotase": "44–147 IU/L",
         "Alamine_Aminotransferase": "7–56 IU/L",
         "Aspartate_Aminotransferase": "10–40 IU/L",
-        "Total_Proteins": "6–8.3 g/dL",
-        "Albumin": "3.5–5.5 g/dL",
+        "Total_Proteins": "6.0–8.3 g/dL",
+        "Albumin": "3.5–5.0 g/dL",
         "Albumin_and_Globulin_Ratio": "1.1–2.5"
     }
 }
@@ -75,7 +75,6 @@ NORMAL_RANGES = {
 models = {}
 scalers = {}
 
-# Helper functions
 def locate_file(candidates):
     for fn in candidates:
         if os.path.exists(fn):
@@ -159,19 +158,16 @@ def get_feature_info(name):
 st.set_page_config(page_title="Multi-Disease Prediction", layout="centered")
 st.title("🧠 Multi-Disease Prediction System")
 
-# Load models
 load_and_train_all()
 
-# Disease selector
 selected_disease = st.sidebar.radio(
     "Select Disease",
     options=["diabetes", "heart", "kidney", "liver"],
     format_func=lambda x: x.capitalize() + " Disease Prediction"
 )
 
-st.subheader(f"📝 Enter Input for {selected_disease.capitalize()} Disease Prediction")
+st.subheader(f"📜 Enter Input for {selected_disease.capitalize()} Disease Prediction")
 
-# Get input fields
 features = get_feature_info(selected_disease)
 user_inputs = []
 
@@ -179,7 +175,6 @@ for feature in features:
     val = st.number_input(label=feature, value=0.0)
     user_inputs.append(val)
 
-# Show normal ranges
 with st.expander(f"📊 Normal Ranges for {selected_disease.capitalize()} Features"):
     if selected_disease in NORMAL_RANGES:
         for feat in features:
@@ -188,7 +183,6 @@ with st.expander(f"📊 Normal Ranges for {selected_disease.capitalize()} Featur
     else:
         st.info("Ranges not available for this disease yet.")
 
-# Prediction button
 if st.button("Predict"):
     result = predict_disease(selected_disease, user_inputs)
     if result == 1:
