@@ -1,19 +1,17 @@
+
 import streamlit as st
 import multi_disease_model as mdm
 
 st.set_page_config(page_title="Multi Disease Prediction", layout="centered")
 st.title("🩺 Multiple Disease Prediction System")
 
-# Sidebar
 st.sidebar.title("Select Disease")
 choice = st.sidebar.radio("", [
     "Diabetes Prediction",
     "Heart Disease Prediction",
-    "Kidney Disease Prediction",
-    "Liver Disease Prediction"
+    "Kidney Disease Prediction"
 ])
 
-# Load models only once
 if 'loaded' not in st.session_state:
     try:
         mdm.load_and_train_all()
@@ -22,7 +20,6 @@ if 'loaded' not in st.session_state:
         st.sidebar.error(str(e))
         st.stop()
 
-# Full feature name mapping based on real medical report terminology
 REAL_LABELS = {
     "diabetes": {
         "Pregnancies": "Number of Pregnancies",
@@ -55,10 +52,6 @@ REAL_LABELS = {
         "sg": "Specific Gravity",
         "al": "Albumin",
         "su": "Sugar",
-        "rbc": "Red Blood Cells (0 = Normal, 1 = Abnormal)",
-        "pc": "Pus Cell (0 = Normal, 1 = Abnormal)",
-        "pcc": "Pus Cell Clumps (0 = Not Present, 1 = Present)",
-        "ba": "Bacteria (0 = Not Present, 1 = Present)",
         "bgr": "Blood Glucose Random (mg/dL)",
         "bu": "Blood Urea (mg/dL)",
         "sc": "Serum Creatinine (mg/dL)",
@@ -67,29 +60,10 @@ REAL_LABELS = {
         "hemo": "Hemoglobin (g/dL)",
         "pcv": "Packed Cell Volume",
         "wc": "White Blood Cell Count (cells/cumm)",
-        "rc": "Red Blood Cell Count (millions/cumm)",
-        "htn": "Hypertension (0 = No, 1 = Yes)",
-        "dm": "Diabetes Mellitus (0 = No, 1 = Yes)",
-        "cad": "Coronary Artery Disease (0 = No, 1 = Yes)",
-        "appet": "Appetite (0 = Good, 1 = Poor)",
-        "pe": "Pedal Edema (0 = No, 1 = Yes)",
-        "ane": "Anemia (0 = No, 1 = Yes)"
-    },
-    "liver": {
-        "Age": "Age (years)",
-        "Gender": "Gender (0 = Female, 1 = Male)",
-        "Total_Bilirubin": "Total Bilirubin (mg/dL)",
-        "Direct_Bilirubin": "Direct Bilirubin (mg/dL)",
-        "Alkaline_Phosphotase": "Alkaline Phosphatase (IU/L)",
-        "Alamine_Aminotransferase": "Alamine Aminotransferase (IU/L)",
-        "Aspartate_Aminotransferase": "Aspartate Aminotransferase (IU/L)",
-        "Total_Protiens": "Total Proteins (g/dL)",
-        "Albumin": "Albumin (g/dL)",
-        "Albumin_and_Globulin_Ratio": "Albumin/Globulin Ratio"
+        "rc": "Red Blood Cell Count (millions/cumm)"
     }
 }
 
-# Render form with proper medical labels
 def render_form(form_key, disease_key):
     st.header(f"{disease_key.capitalize()} Prediction")
     features = mdm.get_feature_info(disease_key)
@@ -109,12 +83,9 @@ def render_form(form_key, disease_key):
         else:
             st.success(f"✅ Prediction: Negative for {disease_key.capitalize()} Disease")
 
-# Routing based on selection
 if choice == "Diabetes Prediction":
     render_form("form_diabetes", "diabetes")
 elif choice == "Heart Disease Prediction":
     render_form("form_heart", "heart")
 elif choice == "Kidney Disease Prediction":
     render_form("form_kidney", "kidney")
-elif choice == "Liver Disease Prediction":
-    render_form("form_liver", "liver")
