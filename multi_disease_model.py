@@ -22,85 +22,83 @@ if 'loaded' not in st.session_state:
         st.sidebar.error(str(e))
         st.stop()
 
-# Normal ranges dictionary
-NORMAL_RANGES = {
+# Full feature name mapping based on real medical report terminology
+REAL_LABELS = {
     "diabetes": {
-        "Pregnancies": "0–6",
-        "Glucose": "70–140 mg/dL",
-        "BloodPressure": "60–90 mmHg",
-        "SkinThickness": "10–50 mm",
-        "Insulin": "15–276 uU/mL",
-        "BMI": "18.5–24.9",
-        "DiabetesPedigreeFunction": "0.0–2.5",
-        "Age": "20–60"
+        "Pregnancies": "Number of Pregnancies",
+        "Glucose": "Glucose Level (mg/dL)",
+        "BloodPressure": "Blood Pressure (mmHg)",
+        "SkinThickness": "Skin Thickness (mm)",
+        "Insulin": "Insulin Level (uU/mL)",
+        "BMI": "Body Mass Index (BMI)",
+        "DiabetesPedigreeFunction": "Diabetes Pedigree Function",
+        "Age": "Age (years)"
     },
     "heart": {
-        "age": "30–70",
-        "sex": "0 = female, 1 = male",
-        "cp": "0–3",
-        "trestbps": "90–140 mmHg",
-        "chol": "125–200 mg/dL",
-        "fbs": "0 = false, 1 = true",
-        "restecg": "0–2",
-        "thalach": "100–200 bpm",
-        "exang": "0 = no, 1 = yes",
-        "oldpeak": "0–2.0",
-        "slope": "0–2",
-        "ca": "0–4",
-        "thal": "0, 1, 2"
+        "age": "Age (years)",
+        "sex": "Sex (0 = Female, 1 = Male)",
+        "cp": "Chest Pain Type (0–3)",
+        "trestbps": "Resting Blood Pressure (mmHg)",
+        "chol": "Serum Cholesterol (mg/dL)",
+        "fbs": "Fasting Blood Sugar > 126 mg/dL (1 = True, 0 = False)",
+        "restecg": "Resting ECG Results (0–2)",
+        "thalach": "Max Heart Rate Achieved (bpm)",
+        "exang": "Exercise Induced Angina (0 = No, 1 = Yes)",
+        "oldpeak": "ST Depression Induced by Exercise",
+        "slope": "Slope of Peak Exercise ST Segment",
+        "ca": "Number of Major Vessels Colored (0–4)",
+        "thal": "Thalassemia (0 = Normal, 1 = Fixed Defect, 2 = Reversible)"
     },
     "kidney": {
-        "age": "15–90",
-        "bp": "60–90",
-        "sg": "1.005–1.025",
-        "al": "0–3",
-        "su": "0–5",
-        "rbc": "0 = normal, 1 = abnormal",
-        "pc": "0 = normal, 1 = abnormal",
-        "pcc": "0 = not present, 1 = present",
-        "ba": "0 = not present, 1 = present",
-        "bgr": "70–140",
-        "bu": "7–20",
-        "sc": "0.5–1.5",
-        "sod": "135–145",
-        "pot": "3.5–5.5",
-        "hemo": "12–17",
-        "pcv": "36–50",
-        "wc": "4000–11000",
-        "rc": "4.5–6.0",
-        "htn": "0 = no, 1 = yes",
-        "dm": "0 = no, 1 = yes",
-        "cad": "0 = no, 1 = yes",
-        "appet": "0 = good, 1 = poor",
-        "pe": "0 = no, 1 = yes",
-        "ane": "0 = no, 1 = yes"
+        "age": "Age (years)",
+        "bp": "Blood Pressure (mmHg)",
+        "sg": "Specific Gravity",
+        "al": "Albumin",
+        "su": "Sugar",
+        "rbc": "Red Blood Cells (0 = Normal, 1 = Abnormal)",
+        "pc": "Pus Cell (0 = Normal, 1 = Abnormal)",
+        "pcc": "Pus Cell Clumps (0 = Not Present, 1 = Present)",
+        "ba": "Bacteria (0 = Not Present, 1 = Present)",
+        "bgr": "Blood Glucose Random (mg/dL)",
+        "bu": "Blood Urea (mg/dL)",
+        "sc": "Serum Creatinine (mg/dL)",
+        "sod": "Sodium (mEq/L)",
+        "pot": "Potassium (mEq/L)",
+        "hemo": "Hemoglobin (g/dL)",
+        "pcv": "Packed Cell Volume",
+        "wc": "White Blood Cell Count (cells/cumm)",
+        "rc": "Red Blood Cell Count (millions/cumm)",
+        "htn": "Hypertension (0 = No, 1 = Yes)",
+        "dm": "Diabetes Mellitus (0 = No, 1 = Yes)",
+        "cad": "Coronary Artery Disease (0 = No, 1 = Yes)",
+        "appet": "Appetite (0 = Good, 1 = Poor)",
+        "pe": "Pedal Edema (0 = No, 1 = Yes)",
+        "ane": "Anemia (0 = No, 1 = Yes)"
     },
     "liver": {
-        "Age": "20–80",
-        "Gender": "0 = Female, 1 = Male",
-        "Total_Bilirubin": "0.3–1.2",
-        "Direct_Bilirubin": "0–0.3",
-        "Alkaline_Phosphotase": "44–147",
-        "Alamine_Aminotransferase": "7–56",
-        "Aspartate_Aminotransferase": "10–40",
-        "Total_Protiens": "6.0–8.3",
-        "Albumin": "3.4–5.4",
-        "Albumin_and_Globulin_Ratio": "0.8–2.0"
+        "Age": "Age (years)",
+        "Gender": "Gender (0 = Female, 1 = Male)",
+        "Total_Bilirubin": "Total Bilirubin (mg/dL)",
+        "Direct_Bilirubin": "Direct Bilirubin (mg/dL)",
+        "Alkaline_Phosphotase": "Alkaline Phosphatase (IU/L)",
+        "Alamine_Aminotransferase": "Alamine Aminotransferase (IU/L)",
+        "Aspartate_Aminotransferase": "Aspartate Aminotransferase (IU/L)",
+        "Total_Protiens": "Total Proteins (g/dL)",
+        "Albumin": "Albumin (g/dL)",
+        "Albumin_and_Globulin_Ratio": "Albumin/Globulin Ratio"
     }
 }
 
-# Render form with ranges
-def render_form(key_name, disease_key):
+# Render form with proper medical labels
+def render_form(form_key, disease_key):
     st.header(f"{disease_key.capitalize()} Prediction")
     features = mdm.get_feature_info(disease_key)
     inputs = []
 
-    with st.form(key_name):
+    with st.form(form_key):
         for feat in features:
-            label = feat
-            if feat in NORMAL_RANGES.get(disease_key, {}):
-                label = f"{feat} (Normal: {NORMAL_RANGES[disease_key][feat]})"
-            val = st.number_input(label=label, value=0.0, key=feat)
+            label = REAL_LABELS[disease_key].get(feat, feat)
+            val = st.number_input(label=label, value=0.0, key=f"{disease_key}_{feat}")
             inputs.append(val)
         submit = st.form_submit_button("Predict")
 
@@ -111,7 +109,7 @@ def render_form(key_name, disease_key):
         else:
             st.success(f"✅ Prediction: Negative for {disease_key.capitalize()} Disease")
 
-# Routing based on sidebar selection
+# Routing based on selection
 if choice == "Diabetes Prediction":
     render_form("form_diabetes", "diabetes")
 elif choice == "Heart Disease Prediction":
