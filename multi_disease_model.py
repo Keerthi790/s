@@ -103,7 +103,7 @@ def render_form(key_name, disease_key):
             val = st.number_input(label=label, value=0.0, key=feat)
             inputs.append(val)
         submit = st.form_submit_button("Predict")
-    
+
     if submit:
         prediction = mdm.predict_disease(disease_key, inputs)
         if prediction == 1:
